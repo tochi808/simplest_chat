@@ -10,9 +10,11 @@ module.exports = function(models) {
         res.redirect('/login');
         return;
       }
+      console.log(req.user);
       return User.findExceptMyself(req.user.id, function(err, users) {
         return res.render("index", {
           title: "Simplest Chat",
+          username: req.user.name,
           users: users
         });
       });
@@ -27,8 +29,13 @@ module.exports = function(models) {
       });
     },
     logout: function(req, res) {
-      req.logout();
-      return res.redirect('login');
+      return User.findById(req.user.id, function(err, user) {
+        user.signed_in = false;
+        return user.save(function(err, user) {
+          req.logout();
+          return res.redirect('login');
+        });
+      });
     }
   };
 };

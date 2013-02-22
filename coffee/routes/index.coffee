@@ -8,9 +8,12 @@ module.exports = (models)->
         res.redirect '/login'
         return
 
+      console.log req.user
+
       User.findExceptMyself req.user.id, (err, users)->
         res.render "index",
           title: "Simplest Chat"
+          username: req.user.name
           users: users 
 
     login: (req, res) ->
@@ -21,6 +24,10 @@ module.exports = (models)->
         errors: req.flash 'error'
 
     logout: (req, res) ->
-      req.logout()
-      res.redirect 'login'
+      User.findById req.user.id, (err, user)->
+        user.signed_in = false
+
+        user.save (err, user)->
+          req.logout()
+          res.redirect 'login'
   }

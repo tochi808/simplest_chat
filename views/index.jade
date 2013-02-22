@@ -9,8 +9,17 @@ block content
     div(class="span4")
       ul(class="user-list")
         each user in users 
-          li= user.name
+          li(class= user.name)
+            =user.name
+            - if(user.connected)
+              i(class="icon-user")
 
     div(class="span8")
 
   a(href="/logout") logout
+
+  input(type="hidden", id="username", value= username )
+
+  script(src="/socket.io/socket.io.js")
+  != js('index')
+

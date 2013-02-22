@@ -64,6 +64,27 @@ app.post "/login", passport.authenticate 'local',
 
 app.get "/logout", routes.logout
 
-http.createServer(app).listen app.get("port"), ->
+
+
+server = http.createServer(app)
+
+io = require('socket.io').listen server
+server.listen app.get("port"), ->
   console.log "Express server listening on port " + app.get("port")
+
+io.sockets.on 'connection', (socket)->
+  socket.on 'introduce', (data)->
+    socket.set 'name', data.name, ()->
+      models.User.findOne name: data.name, (err, user)->
+        user.connected = true
+        user.save (err, user)->
+          socket.broadcast.emit 'some one has come', name: data.name 
+
+  socket.on 'disconnect', (data)->
+    socket.get 'name', (err, name)->
+      models.User.findOne name: name, (err, user)->
+        user.connected = false 
+        user.save (err, user)->
+          console.log 'disconnected!!!'
+
 

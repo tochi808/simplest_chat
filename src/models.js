@@ -9,11 +9,19 @@ Schema = db.Schema;
 
 UserSchema = new Schema({
   name: String,
-  password: String
+  password: String,
+  connected: {
+    type: Boolean,
+    "default": false
+  }
 });
 
 UserSchema.methods.validatePassword = function(password) {
   return this.password === password;
+};
+
+UserSchema.methods.is_signed_in = function() {
+  return this.signed_in;
 };
 
 UserSchema.statics.findExceptMyself = function(my_id, cb) {

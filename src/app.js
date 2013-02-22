@@ -3,7 +3,7 @@
 Module dependencies.
 */
 
-var app, assets, express, flash, http, localStrategy, models, passport, path, routes, user;
+var app, assets, express, flash, http, io, localStrategy, models, passport, path, routes, server, user;
 
 express = require("express");
 
@@ -93,6 +93,39 @@ app.post("/login", passport.authenticate('local', {
 
 app.get("/logout", routes.logout);
 
-http.createServer(app).listen(app.get("port"), function() {
+server = http.createServer(app);
+
+io = require('socket.io').listen(server);
+
+server.listen(app.get("port"), function() {
   return console.log("Express server listening on port " + app.get("port"));
+});
+
+io.sockets.on('connection', function(socket) {
+  socket.on('introduce', function(data) {
+    return socket.set('name', data.name, function() {
+      return models.User.findOne({
+        name: data.name
+      }, function(err, user) {
+        user.connected = true;
+        return user.save(function(err, user) {
+          return socket.broadcast.emit('some one has come', {
+            name: data.name
+          });
+        });
+      });
+    });
+  });
+  return socket.on('disconnect', function(data) {
+    return socket.get('name', function(err, name) {
+      return models.User.findOne({
+        name: name
+      }, function(err, user) {
+        user.connected = false;
+        return user.save(function(err, user) {
+          return console.log('disconnected!!!');
+        });
+      });
+    });
+  });
 });
