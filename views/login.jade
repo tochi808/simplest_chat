@@ -1,0 +1,14 @@
+extends layout
+
+block content
+  h1= title
+
+  each error in errors 
+    div(class="alert alert-err-r")= error
+
+  form(method="POST", action="/login")
+    input(type="text", name="username")
+    br
+    input(type="password", name="password")
+    br
+    input(type="submit")
