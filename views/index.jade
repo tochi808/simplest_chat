@@ -9,10 +9,9 @@ block content
     div(class="span4")
       ul(class="user-list")
         each user in users 
-          li(class= user.name)
+          li(class= "onamae " + user.name)
             =user.name
-            - if(user.connected)
-              i(class="icon-user")
+            i(class="icon-user", style="display:none")
 
     div(class="span8")
 

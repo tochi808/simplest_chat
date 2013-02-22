@@ -3,7 +3,7 @@
 Module dependencies.
 */
 
-var app, assets, express, flash, http, io, localStrategy, models, passport, path, routes, server, user;
+var app, assets, express, flash, http, io, localStrategy, models, passport, path, routes, server, user, _;
 
 express = require("express");
 
@@ -24,6 +24,8 @@ flash = require("connect-flash");
 passport = require('passport');
 
 localStrategy = require('passport-local').Strategy;
+
+_ = require('underscore');
 
 app = express();
 
@@ -102,29 +104,32 @@ server.listen(app.get("port"), function() {
 });
 
 io.sockets.on('connection', function(socket) {
+  var client_names, clients, countClient;
+  client_names = [];
+  clients = io.sockets.clients();
+  countClient = _.after(clients.length, function() {
+    return socket.emit('connected', {
+      client_names: client_names
+    });
+  });
+  _.each(clients, function(client) {
+    return client.get('name', function(err, name) {
+      client_names.push(name);
+      return countClient();
+    });
+  });
   socket.on('introduce', function(data) {
     return socket.set('name', data.name, function() {
-      return models.User.findOne({
-        name: data.name
-      }, function(err, user) {
-        user.connected = true;
-        return user.save(function(err, user) {
-          return socket.broadcast.emit('some one has come', {
-            name: data.name
-          });
-        });
+      return socket.broadcast.emit('some one connected', {
+        name: data.name,
+        client_names: client_names
       });
     });
   });
   return socket.on('disconnect', function(data) {
     return socket.get('name', function(err, name) {
-      return models.User.findOne({
+      return socket.broadcast.emit('some one disconnected', {
         name: name
-      }, function(err, user) {
-        user.connected = false;
-        return user.save(function(err, user) {
-          return console.log('disconnected!!!');
-        });
       });
     });
   });

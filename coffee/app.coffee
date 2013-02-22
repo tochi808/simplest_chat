@@ -12,6 +12,7 @@ assets = require("connect-assets")
 flash = require("connect-flash")
 passport = require('passport')
 localStrategy = require('passport-local').Strategy
+_ = require('underscore')
 app = express()
 
 passport.serializeUser (user, done)->
@@ -73,18 +74,22 @@ server.listen app.get("port"), ->
   console.log "Express server listening on port " + app.get("port")
 
 io.sockets.on 'connection', (socket)->
+  client_names = []
+  clients      = io.sockets.clients()
+  countClient = _.after clients.length, ()-> 
+    socket.emit 'connected', {client_names: client_names} 
+
+  _.each clients, (client)->
+    client.get 'name', (err, name)->
+      client_names.push name
+      countClient()
+
   socket.on 'introduce', (data)->
     socket.set 'name', data.name, ()->
-      models.User.findOne name: data.name, (err, user)->
-        user.connected = true
-        user.save (err, user)->
-          socket.broadcast.emit 'some one has come', name: data.name 
+      socket.broadcast.emit 'some one connected', name: data.name, client_names: client_names
 
   socket.on 'disconnect', (data)->
     socket.get 'name', (err, name)->
-      models.User.findOne name: name, (err, user)->
-        user.connected = false 
-        user.save (err, user)->
-          console.log 'disconnected!!!'
+      socket.broadcast.emit 'some one disconnected' , name: name
 
 
