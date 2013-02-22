@@ -3,7 +3,8 @@
 Module dependencies.
 ###
 express = require("express")
-routes = require("./routes")
+models = require('./models')
+routes = require("./routes")(models)
 user = require("./routes/user")
 http = require("http")
 path = require("path")
@@ -11,8 +12,6 @@ assets = require("connect-assets")
 flash = require("connect-flash")
 passport = require('passport')
 localStrategy = require('passport-local').Strategy
-models = require('./models')
-
 app = express()
 
 passport.serializeUser (user, done)->

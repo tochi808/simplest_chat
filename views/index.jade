@@ -1,7 +1,16 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  div(class="row")
+    h1= title
+    p Welcome to #{title}
+
+  div(class="row")
+    div(class="span4")
+      ul(class="user-list")
+        each user in users 
+          li= user.name
+
+    div(class="span8")
 
   a(href="/logout") logout

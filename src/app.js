@@ -7,7 +7,9 @@ var app, assets, express, flash, http, localStrategy, models, passport, path, ro
 
 express = require("express");
 
-routes = require("./routes");
+models = require('./models');
+
+routes = require("./routes")(models);
 
 user = require("./routes/user");
 
@@ -22,8 +24,6 @@ flash = require("connect-flash");
 passport = require('passport');
 
 localStrategy = require('passport-local').Strategy;
-
-models = require('./models');
 
 app = express();
 

@@ -16,4 +16,8 @@ UserSchema.methods.validatePassword = function(password) {
   return this.password === password;
 };
 
+UserSchema.statics.findExceptMyself = function(my_id, cb) {
+  return this.where('_id').ne(my_id).exec(cb);
+};
+
 module.exports.User = mongoose.model('User', UserSchema);
