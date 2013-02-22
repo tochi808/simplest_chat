@@ -2,10 +2,6 @@ window.SimplestChat ||= {}
 
 socket = io.connect('http://localhost')
 
-socket.on 'connect', ()->
-  name = $('#username').val()
-  socket.emit 'introduce', name: name
-
 socket.on 'connected', (data)->
   _.each data.client_names , (name)->
     lis = $('li.onamae')
@@ -14,6 +10,8 @@ socket.on 'connected', (data)->
       if $li.hasClass(name)
         $li.children('.icon-user:first').show()
         #should break loop
+
+  socket.emit 'introduce', name: $('#username').val()
 
 socket.on 'some one connected', (data)->
   console.log data.name + ' has connected'

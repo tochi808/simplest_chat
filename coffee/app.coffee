@@ -70,6 +70,7 @@ app.get "/logout", routes.logout
 server = http.createServer(app)
 
 io = require('socket.io').listen server
+
 server.listen app.get("port"), ->
   console.log "Express server listening on port " + app.get("port")
 
